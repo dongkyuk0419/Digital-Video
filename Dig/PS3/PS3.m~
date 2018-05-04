@@ -1,0 +1,10 @@
+% DongKyu Kim
+% Problem Set 3
+% ECE 418 Digital Video
+% Professor Fontaine
+clc; clear all; close all;
+%% 0. Prelim
+video_truth = VideoReader('traffic.mj2');
+% implay('traffic.mj2')
+frames = zeros(trafficVid.Width, trafficVid.Height, trafficVid.FrameRate*trafficVid.Duration);
+% 
