@@ -1,4 +1,4 @@
-function [ mv,dfd,P_pred,PSNR] = EBMA( I, P, sr, bs)
+function [ mv,dfd,P_pred,PSNR,counter] = EBMA( I, P, sr, bs,counter)
 % Exhaustive Block Motion Algorithm
 % I: reference frame
 % P: target frame
@@ -9,20 +9,23 @@ function [ mv,dfd,P_pred,PSNR] = EBMA( I, P, sr, bs)
 % dfd: dfd of predicted frame with respect to the original target frame
 % P_red: predicted target frame
 % PSNR: peak signal to noise ratio
+    if nargin < 5
+        counter = 0;
+    end
 
     [h,w] = size(I);
     mv = zeros(2,floor(h/bs(1)),floor(w/bs(2))); %motion vector store
-    P_pred = ones(size(I)) * mean(mean(I)); %initialize with this, I tried
-               % using I frame directly, but this results in a better PSNR
+    P_pred = I;
     for i = 1:size(mv,2) %iterate through vertical blocks
         for ii = 1:size(mv,3) %iterate through horizontal blocks
 
             % Motion Vector Estimation
-            err = 1e3; %place holder %maximum MAD
+            err = 1e5; %place holder %maximum MAD
             mv_store = [0;0];
             %location of upper left corner 
             ref_pix = [bs(1)*(i-1)+1,bs(2)*(ii-1)+1];
-
+            I_block = I(ref_pix(1):ref_pix(1)+bs(1)-1,ref_pix(2):...
+                ref_pix(2)+bs(2)-1);
             for k = -sr(1):sr(1) % search vertically
                 for kk = -sr(2):sr(2) %search horizontally
 
@@ -40,13 +43,14 @@ function [ mv,dfd,P_pred,PSNR] = EBMA( I, P, sr, bs)
                         continue
                     end
                     % Block Matching
-                    I_block = I(ref_pix(1):ref_pix(1)+bs(1)-1,ref_pix(2):...
-                        ref_pix(2)+bs(2)-1);
                     P_block = P(ref_pix(1)+k:ref_pix(1)+bs(1)-1+k,...
                         ref_pix(2)+kk:ref_pix(2)+bs(2)-1+kk);
                     frame_diff = I_block - P_block;
-                    MAD = 1/bs(1)/bs(2)*sum(sum(abs(frame_diff)));
-                    % I chose MAD for computational advantage
+                    MAD = sum(sum(abs(frame_diff)));
+                    counter = counter + 2*h*w -1;
+                    
+                    % I chose MAD for computational advantage, and I
+                    % removed dividing by number of pixels for speed
                     if(MAD < err)
                         err = MAD;
                         mv_store = [k,kk];
