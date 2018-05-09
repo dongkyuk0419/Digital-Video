@@ -1,13 +1,18 @@
-function [mv,dfd,P_pred,PSNR,counter] = HBMA(I,P,sr,bs,lvl,counter)
+function [mv,dfd,P_pred,PSNR,counter] = HBMA(I,P,sr,bs,lvl,counter,err)
 % Hierarchical Block Motion Algorithm
 % Detailed explanation goes here
 if nargin < 6
     counter = 0;
 end
+if nargin < 7
+    err = 1e5;
+end
 
 level_n = length(lvl);
 [h,w] = size(I);
 P_pred = I;
+% P_pred = imresize(I,2,'bilinear');
+
 % Downsample for first level and parameters
 I1 = imresize(I,1/lvl(1));
 P1 = imresize(P,1/lvl(1));
@@ -18,16 +23,15 @@ mv = zeros(2,floor(h1/bs(1)),floor(w1/bs(2)));
 for i = 1:floor(h1/bs(1))
     for ii = 1:floor(w1/bs(2))
         ref_pix = [bs(1)*(i-1)+1,bs(2)*(ii-1)+1];
-        [mv(:,i,ii),counter] = HBMA_mod(I1,P1,bs,ref_pix,sr1,h1,w1,[0;0],counter);
+        [mv(:,i,ii),counter] = HBMA_mod(I1,P1,bs,ref_pix,sr1,h1,w1,[0;0],counter,err);
     end
 end
-
 %For subsequence levels
 for kkk = 1:level_n-1
-    half_pel = 0;
-    if (lvl(kkk+1) ==1)
-        half_pel = 1;
-    end
+%     half_pel = 0;
+%     if (lvl(kkk+1) ==1)
+%         half_pel = 1;
+%     end
     mult = lvl(kkk+1);
     mv_norm = mv*lvl(kkk)/mult;    
     h_temp = h/mult;
@@ -46,7 +50,7 @@ for kkk = 1:level_n-1
             m_ii = m_ii+(m_ii==0);
             ref_pix = [bs(1)*(i-1)+1,bs(2)*(ii-1)+1];
             [mv_temp(:,i,ii),counter] = HBMA_mod(I_temp,P_temp,bs,ref_pix,...
-                sr_temp,h_temp,w_temp,mv_norm(:,m_i,m_ii),counter,half_pel);
+                sr_temp,h_temp,w_temp,mv_norm(:,m_i,m_ii),counter,err);
         end
     end
     mv = mv_temp;
@@ -60,6 +64,7 @@ for i = 1:floor(h/bs(1))
             ref_pix(2)+mv(2,i,ii):ref_pix(2)+bs(2)-1+mv(2,i,ii)) = I_block;
     end
 end
+%     P_pred = imresize(P_pred,1/2);
     dfd = P_pred - P;
     R = max(max(abs(dfd)));
     MSE = sum(sum((dfd.^2)))/h/w;
