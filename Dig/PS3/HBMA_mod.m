@@ -7,9 +7,10 @@ I_block = I(ref_pix(1):ref_pix(1)+bs(1)-1,ref_pix(2):...
 mv = [0;0];
 
 
-if nargin <10
+if (nargin <10)
     err = 1e5;
 end
+
 for k = -sr(1):sr(1) % search vertically
     for kk = -sr(2):sr(2) %search horizontally
         if(ref_pix(1)+k+mv_norm(1) <= 0)
@@ -28,8 +29,8 @@ for k = -sr(1):sr(1) % search vertically
             ref_pix(2)+kk+mv_norm(2):ref_pix(2)+bs(2)-1+kk+mv_norm(2));
         MAD = sum(sum(abs(P_block - I_block)));
         counter = counter + 2*h*w -1;
-        
-        if MAD < err
+%         disp(MAD)
+        if (MAD < err)
             err = MAD;
             mv = [k;kk];
         end

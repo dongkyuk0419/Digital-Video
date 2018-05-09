@@ -1,10 +1,10 @@
 function [mv,dfd,P_pred,PSNR,counter] = HBMA(I,P,sr,bs,lvl,counter,err)
 % Hierarchical Block Motion Algorithm
 % Detailed explanation goes here
-if nargin < 6
+if (nargin < 6)
     counter = 0;
 end
-if nargin < 7
+if (nargin < 7)
     err = 1e5;
 end
 
@@ -65,6 +65,7 @@ for i = 1:floor(h/bs(1))
     end
 end
 %     P_pred = imresize(P_pred,1/2);
+    P_pred = P_pred(1:h,1:w);
     dfd = P_pred - P;
     R = max(max(abs(dfd)));
     MSE = sum(sum((dfd.^2)))/h/w;

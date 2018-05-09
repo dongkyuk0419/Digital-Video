@@ -139,19 +139,20 @@ disp(X);
 
 
 % % Movie after HBMA
-frames_P_H = zeros(size(frames));
-PSNR_whole_H = zeros(1,size(frames,3));
-counter = 0;
-for i = 1:4:size(frames,3)
-    frames_P_H(:,:,i) = frames(:,:,i);
-    PSNR_whole_H(i) = 0;
-    [~,~,frames_P_H(:,:,i+1),PSNR_whole_H(i+1),counter] = HBMA(frames(:,:,i),frames(:,:,i+1),sr,bs,lvl2,counter);
-    [~,~,frames_P_H(:,:,i+2),PSNR_whole_H(i+2),counter] = HBMA(frames(:,:,i),frames(:,:,i+2),sr,bs,lvl2,counter);
-    [~,~,frames_P_H(:,:,i+3),PSNR_whole_H(i+3),counter] = HBMA(frames(:,:,i),frames(:,:,i+3),sr,bs,lvl2,counter);
-end
-X = ['This video took ', num2str(counter), ' additions.'];
-disp(X);
-% % This video took 728867681770 additions.
+% frames_P_H = zeros(size(frames));
+% PSNR_whole_H = zeros(1,size(frames,3));
+% dfd_H = zeros(size(frames));
+% counter = 0;
+% for i = 1:4:size(frames,3)
+%     frames_P_H(:,:,i) = frames(:,:,i);
+%     PSNR_whole_H(i) = 0;
+%     [~,dfd_H(:,:,i+1),frames_P_H(:,:,i+1),PSNR_whole_H(i+1),counter] = HBMA(frames(:,:,i),frames(:,:,i+1),sr,bs,lvl2,counter);
+%     [~,dfd_H(:,:,i+2),frames_P_H(:,:,i+2),PSNR_whole_H(i+2),counter] = HBMA(frames(:,:,i),frames(:,:,i+2),sr,bs,lvl2,counter);
+%     [~,dfd_H(:,:,i+3),frames_P_H(:,:,i+3),PSNR_whole_H(i+3),counter] = HBMA(frames(:,:,i),frames(:,:,i+3),sr,bs,lvl2,counter);
+% end
+% X = ['This video took ', num2str(counter), ' additions.'];
+% disp(X);
+% % % This video took 728867681770 additions.
 
 disp('Playing the video predicted with HBMA');
 load('frames_P_H.mat'); % I exported the data so that I don't have to compute above twice.
@@ -171,7 +172,7 @@ sr = [32,32];
 % lvl1 = [8 4 2 1]; % my example video is too low resolution
 lvl2 = [4 2 1];
 counter = 0;
-err = 3; % this is DFD control in essence
+err = 30; % this is DFD control in essence, determined iteratively
 [mv,dfd,P_pred,PSNR,counter] = HBMA(frames(:,:,I_frame_n),frames(:,:,P_frame_n),sr,bs,lvl2,counter,err);
 X = ['This frame took ', num2str(counter), ' additions.'];
 disp(X);
@@ -210,27 +211,43 @@ X = ['PSNR of this frame is ', num2str(PSNR), ' dB.'];
 disp(X);
 
 
-% % Movie after HBMA
-frames_P_H = zeros(size(frames));
-PSNR_whole_H = zeros(1,size(frames,3));
-counter = 0;
-for i = 1:4:size(frames,3)
-    frames_P_H(:,:,i) = frames(:,:,i);
-    PSNR_whole_H(i) = 0;
-    [~,~,frames_P_H(:,:,i+1),PSNR_whole_H(i+1),counter] = HBMA(frames(:,:,i),frames(:,:,i+1),sr,bs,lvl2,counter,err);
-    [~,~,frames_P_H(:,:,i+2),PSNR_whole_H(i+2),counter] = HBMA(frames(:,:,i),frames(:,:,i+2),sr,bs,lvl2,counter,err);
-    [~,~,frames_P_H(:,:,i+3),PSNR_whole_H(i+3),counter] = HBMA(frames(:,:,i),frames(:,:,i+3),sr,bs,lvl2,counter,err);
-end
-X = ['This video took ', num2str(counter), ' additions.'];
-disp(X);
-% % This video took 728867681770 additions.
-
-% disp('Playing the video predicted with HBMA');
-% load('frames_P_H.mat'); % I exported the data so that I don't have to compute above twice.
-% load('PSNR_whole_H');
-% implay(frames_P_H,video_truth.FrameRate)
-% X = ['Max PSNR of this video is ', num2str(max(PSNR_whole_H)), ' dB.'];
-% X2 = ['Min PSNR of this video is ', num2str(min(PSNR_whole_H(PSNR_whole_H~=0))),' dB.'];
+% % Movie after HBMA with Threshold
+% frames_P_H2 = zeros(size(frames));
+% PSNR_whole_H2 = zeros(1,size(frames,3));
+% dfd_H2 = zeros(size(frames));
+% counter = 0;
+% for i = 1:4:size(frames,3)
+%     frames_P_H2(:,:,i) = frames(:,:,i);
+%     PSNR_whole_H2(i) = 0;
+%     [~,dfd_H2(:,:,i+1),frames_P_H2(:,:,i+1),PSNR_whole_H2(i+1),counter] = HBMA(frames(:,:,i),frames(:,:,i+1),sr,bs,lvl2,counter,err);
+%     [~,dfd_H2(:,:,i+2),frames_P_H2(:,:,i+2),PSNR_whole_H2(i+2),counter] = HBMA(frames(:,:,i),frames(:,:,i+2),sr,bs,lvl2,counter,err);
+%     [~,dfd_H2(:,:,i+3),frames_P_H2(:,:,i+3),PSNR_whole_H2(i+3),counter] = HBMA(frames(:,:,i),frames(:,:,i+3),sr,bs,lvl2,counter,err);
+% end
+% X = ['This video took ', num2str(counter), ' additions.'];
 % disp(X);
-% disp(X2);
+% % This video took 729206727044 additions.
+
+disp('Playing the video predicted with HBMA with Threshold');
+load('frames_P_H2.mat'); % I exported the data so that I don't have to compute above twice.
+load('PSNR_whole_H2');
+implay(frames_P_H2,video_truth.FrameRate)
+X = ['Max PSNR of this video is ', num2str(max(PSNR_whole_H2)), ' dB.'];
+X2 = ['Min PSNR of this video is ', num2str(min(PSNR_whole_H2(PSNR_whole_H2~=0))),' dB.'];
+disp(X);
+disp(X2);
+
+%DFD graphs
+load('dfd_H');
+load('dfd_H2');
+msq_dfd1 = squeeze(mean(mean((dfd_H.^2),1),2));
+msq_dfd2 = squeeze(mean(mean((dfd_H2.^2),1),2));
+figure;
+subplot(2,1,1);
+histogram(msq_dfd1);
+title('histogram for HBMA without Treshold');
+subplot(2,1,2);
+histogram(msq_dfd2);
+xlabel('mean squared dfd');
+title('histogram for HBMA with Treshold');
+
 
