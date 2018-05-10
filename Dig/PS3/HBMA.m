@@ -66,7 +66,7 @@ for i = 1:floor(h/bs(1))
 end
 %     P_pred = imresize(P_pred,1/2);
     P_pred = P_pred(1:h,1:w);
-    dfd = P_pred - P;
+    dfd = P_pred - I;
     R = max(max(abs(dfd)));
     MSE = sum(sum((dfd.^2)))/h/w;
     PSNR = 10*log10(R^2/MSE);

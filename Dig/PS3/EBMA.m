@@ -64,7 +64,7 @@ function [ mv,dfd,P_pred,PSNR,counter] = EBMA( I, P, sr, bs,counter)
                 ref_pix(2)+mv(2,i,ii):ref_pix(2)+bs(2)-1+mv(2,i,ii)) = I_block;
         end
     end
-    dfd = P_pred - P;
+    dfd = P_pred - I;
     R = max(max(abs(dfd)));
     MSE = sum(sum((dfd.^2)))/h/w;
     PSNR = 10*log10(R^2/MSE);
